@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="sl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RyZe Development</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+        header {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 0;
+            text-align: center;
+        }
+        nav {
+            text-align: center;
+            margin: 20px 0;
+        }
+        nav a {
+            margin: 0 15px;
+            text-decoration: none;
+            color: #4CAF50;
+        }
+        section {
+            padding: 20px;
+            background-color: white;
+            margin: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        footer {
+            background-color: #333;
+            color: white;
+            text-align: center;
+            padding: 10px 0;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+        }
+        .contact-form input, .contact-form textarea {
+            width: 100%;
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+        }
+        .contact-form button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .contact-form button:hover {
+            background-color: #45a049;
+        }
+        .shop-item {
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 10px;
+            text-align: center;
+            margin: 10px;
+        }
+        .shop-item img {
+            max-width: 100%;
+            border-radius: 5px;
+        }
+        .shop-item button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .shop-item button:hover {
+            background-color: #45a049;
+        }
+        .cart {
+            position: fixed;
+            right: 20px;
+            top: 20px;
+            background-color: white;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            width: 300px;
+            display: none;
+        }
+        .cart-item {
+            border-bottom: 1px solid #ddd;
+            padding: 10px 0;
+        }
+        .cart-item:last-child {
+            border-bottom: none;
+        }
+    </style>
+    <script>
+        let cart = [];
+
+        function toggleCart() {
+            const cartElement = document.getElementById('cart');
+            cartElement.style.display = cartElement.style.display === 'none' ? 'block' : 'none';
+        }
+
+        async function sendContactForm(event) {
+            event.preventDefault();
+            const formData = new FormData(event.target);
+            const data = Object.fromEntries(formData.entries());
+            try {
+                const response = await fetch('/contact', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
+                const result = await response.json();
+                alert(result.message);
+            } catch (error) {
+                console.error('Napaka pri pošiljanju kontaktnega obrazca:', error);
+                alert('Napaka pri pošiljanju sporočila. Poskusite znova.');
+            }
+        }
+
+        async function addToCart(productId) {
+            try {
+                const response = await fetch('/cart', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ productId })
+                });
+                const result = await response.json();
+                if (result.product) {
+                    cart.push(result.product);
+                    updateCartDisplay();
+                }
+                alert(result.message);
+            } catch (error) {
+                console.error('Napaka pri dodajanju izdelka v košarico:', error);
+                alert('Napaka pri dodajanju izdelka v košarico. Poskusite znova.');
+            }
+        }
+
+        function updateCartDisplay() {
+            const cartElement = document.getElementById('cart');
+            const cartItemsElement = cartElement.querySelector('.cart-items');
+            cartItemsElement.innerHTML = '';
+            cart.forEach(item => {
+                const itemElement = document.createElement('div');
+                itemElement.className = 'cart-item';
+                itemElement.innerHTML = `
+                    <h4>${item.name}</h4>
+                    <p>Cena: ${item.price}€</p>
+                `;
+                cartItemsElement.appendChild(itemElement);
+            });
+        }
+    </script>
+</head>
+<body>
+    <header>
+        <h1>RyZe Development</h1>
+        <nav>
+            <a href="#about">O nas</a>
+            <a href="#shop">Trgovina</a>
+            <a href="#contact">Kontakt</a>
+            <a href="#" onclick="toggleCart()">Košarica</a>
+        </nav>
+    </header>
+    <nav>
+        <a href="home.html">Domov</a>
+        <a href="trgovina.html">Trgovina</a>
+        <a href="kontakt.html">Kontakt</a>
+        <a href="#" onclick="toggleCart()">Košarica</a>
+    </nav>
+    
+    <section id="about">
+        <h2>O nas</h2>
+        <p>Dobrodošli na strani RyZe Development. Smo inovativno podjetje, ki se ukvarja z razvojem naprednih rešitev za vaše potrebe.</p>
+    </section>
+
+    <section id="shop">
+        <h2>Trgovina</h2>
+        <div class="shop-item">
+            <img src="product1.jpg" alt="Izdelek 1">
+            <h3>Izdelek 1</h3>
+            <p>Cena: 20€</p>
+            <button onclick="addToCart(1)">Dodaj v košarico</button>
+        </div>
+        <div class="shop-item">
+            <img src="product2.jpg" alt="Izdelek 2">
+            <h3>Izdelek 2</h3>
+            <p>Cena: 30€</p>
+            <button onclick="addToCart(2)">Dodaj v košarico</button>
+        </div>
+    </section>
+
+    <section id="contact">
+        <h2>Kontakt</h2>
+        <form class="contact-form" onsubmit="sendContactForm(event)">
+            <input type="text" name="name" placeholder="Vaše ime" required>
+            <input type="email" name="email" placeholder="Vaš email" required>
+            <textarea name="message" placeholder="Vaše sporočilo" rows="5" required></textarea>
+            <button type="submit">Pošlji</button>
+        </form>
+    </section>
+
+    <div id="cart" class="cart">
+        <h3>Vaša košarica</h3>
+        <div class="cart-items"></div>
+        <button onclick="toggleCart()">Zapri</button>
+    </div>
+
+    <footer>
+        <p>&copy; 2024 RyZe Development. Vse pravice pridržane.</p>
+    </footer>
+</body>
+</html>
+
